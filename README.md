@@ -44,7 +44,7 @@ Mock 실패를 흉내 내려면 `--mock.notification.always-fail=true` 또는 `-
 
 - 상태를 바꾸는 요청은 모두 같은 순서로 처리한다. 권한 확인(`AccessGuard`) → 행 잠금 조회(`ProjectRepository.findByIdForUpdate`) → `Project` 연산 → 저장까지가 하나의 트랜잭션이고, 커밋 뒤에 Mock을 호출한다.
 - 업무 규칙은 모두 `domain.model`에 있다. 규칙을 어기면 `DomainException(ErrorCode)`이 나고 아무것도 바뀌지 않는다. 화면은 그 사유를 보여 준다.
-- 설계 문서의 상세 시퀀스(그림 3-2 ~ 3-8)에 나오는 메시지는 모두 이 코드의 메서드 이름과 같다. 설계 문서 원본의 `check_code.py`로 확인한다.
+- 설계 문서의 상세 시퀀스(그림 3-2 ~ 3-7)에 나오는 메시지는 모두 이 코드의 메서드 이름과 같다. 설계 문서 원본의 `check_code.py`로 확인한다.
 
 ## 시험
 
