@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments :: head('결과물 검토')}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main th:with="p=${page.project()}">
+    <h1 th:text="${p.title()} + ' · 결과물·검토'">검토</h1>
+    <nav th:replace="~{fragments :: tabs(${p})}"></nav>
+    <div th:replace="~{fragments :: messages}"></div>
+    <p>프로젝트 상태 <span class="state" th:text="${p.stateLabel()}"></span></p>
+
+    <form class="box" th:if="${page.canReview()}" th:action="@{/projects/{id}/review(id=${p.id()})}" method="post">
+        <b th:text="'최신 회차(' + ${page.rounds()[0].round()} + '회차) 검토'"></b>
+        <label>피드백 (수정 요청이면 반드시 입력)</label><textarea name="feedback"></textarea>
+        <button class="primary" type="submit" name="decision" value="APPROVE">승인</button>
+        <button type="submit" name="decision" value="REQUEST_REVISION">수정 요청</button>
+    </form>
+
+    <form class="box" th:if="${page.canComplete()}" th:action="@{/projects/{id}/complete(id=${p.id()})}" method="post"
+          onsubmit="return confirm('완료 처리할까요? 완료하면 정산이 진행되고 되돌릴 수 없습니다.')">
+        승인된 결과물로 프로젝트를 완료합니다. 정산 예정 금액
+        <b th:text="${#numbers.formatInteger(page.settlementAmount(), 0, 'COMMA')} + '원'"></b>.
+        <button class="primary" type="submit">완료 처리</button>
+    </form>
+
+    <div class="box" th:if="${page.settlement() != null}">
+        정산 기록: <b th:text="${#numbers.formatInteger(page.settlement().amount(), 0, 'COMMA')} + '원'"></b>,
+        대상 <span th:text="${page.settlement().targetRound()} + '회차'"></span>,
+        상태 <span class="state" th:text="${page.settlement().stateLabel()}"></span>
+    </div>
+
+    <h2>회차 이력</h2>
+    <p th:if="${#lists.isEmpty(page.rounds())}" class="muted">아직 제출된 결과물이 없습니다.</p>
+    <table th:unless="${#lists.isEmpty(page.rounds())}">
+        <tr><th>회차</th><th>상태</th><th>제출 내용</th><th>피드백</th></tr>
+        <tr th:each="d : ${page.rounds()}">
+            <td th:text="${d.round()} + '회차'"></td>
+            <td><span class="state" th:text="${d.stateLabel()}"></span><br>
+                <span class="muted" th:text="${#temporals.format(d.submittedAt(), 'MM-dd HH:mm')}"></span></td>
+            <td>
+                <div th:each="f : ${d.files()}"><a th:href="@{/attachments/{id}(id=${f.id()})}" th:text="${f.fileName()}"></a>
+                    <span class="muted" th:text="'(' + ${f.size()} + ' bytes)'"></span></div>
+                <div th:if="${d.virtualInfo() != null}" th:text="'가상 결과물: ' + ${d.virtualInfo()}"></div>
+                <div class="muted" th:if="${d.memo() != null and !#strings.isEmpty(d.memo())}" th:text="'메모: ' + ${d.memo()}"></div>
+            </td>
+            <td><pre class="feedback" th:if="${d.feedback() != null}" th:text="${d.feedback()}"></pre></td>
+        </tr>
+    </table>
+</main>
+</body>
+</html>

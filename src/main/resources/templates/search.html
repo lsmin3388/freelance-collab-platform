@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments :: head('모집 중 프로젝트')}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main>
+    <h1>모집 중 프로젝트</h1>
+    <table>
+        <tr><th>제목</th><th>분야</th><th>예산</th><th>희망 마감일</th><th>의뢰자</th></tr>
+        <tr th:each="p : ${projects}">
+            <td><a th:href="@{/projects/{id}(id=${p.id()})}" th:text="${p.title()}">제목</a></td>
+            <td th:text="${p.field()}"></td>
+            <td th:text="${p.budget()}"></td>
+            <td th:text="${p.dueDate()}"></td>
+            <td th:text="${p.clientName()}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(projects)}"><td colspan="5" class="muted">모집 중인 프로젝트가 없습니다.</td></tr>
+    </table>
+</main>
+</body>
+</html>

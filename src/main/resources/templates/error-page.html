@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments :: head('요청을 처리할 수 없음')}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main>
+    <h1>요청을 처리할 수 없습니다</h1>
+    <div class="msg err" th:text="${message}"></div>
+    <p class="muted" th:text="'오류 코드: ' + ${code}"></p>
+    <a th:href="@{/}">처음으로</a>
+</main>
+</body>
+</html>

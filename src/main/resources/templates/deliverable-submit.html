@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments :: head('결과물 제출')}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main th:with="p=${form.project()}">
+    <h1 th:text="${p.title()} + ' · 결과물 제출'">제출</h1>
+    <nav th:replace="~{fragments :: tabs(${p})}"></nav>
+    <div th:replace="~{fragments :: messages}"></div>
+    <p>프로젝트 상태 <span class="state" th:text="${p.stateLabel()}"></span></p>
+
+    <div class="msg err" th:if="${!form.allowed()}" th:text="'지금은 제출할 수 없습니다: ' + ${form.reason()}"></div>
+
+    <th:block th:if="${form.previousFeedback() != null}">
+        <h2 th:text="${form.previousRound()} + '회차 피드백 (수정본 제출)'">피드백</h2>
+        <pre class="feedback" th:text="${form.previousFeedback()}"></pre>
+    </th:block>
+
+    <h2>합의된 기준</h2>
+    <table>
+        <tr><th>작업 범위</th><td th:text="${form.agreedScope()}"></td></tr>
+        <tr><th>일정</th><td th:text="${form.agreedSchedule()}"></td></tr>
+        <tr><th>산출물 형식</th><td th:text="${form.allowedFormats()}"></td></tr>
+    </table>
+
+    <form class="box" th:if="${form.allowed()}" th:action="@{/projects/{id}/deliverables(id=${p.id()})}"
+          method="post" enctype="multipart/form-data">
+        <b th:text="${form.nextRound()} + '회차 제출'"></b>
+        <label>파일 (여러 개 가능)</label><input type="file" name="files" multiple>
+        <label>가상 결과물 정보 (파일 대신 링크·설명)</label><input type="text" name="virtualInfo">
+        <label>제출 메모</label><textarea name="memo"></textarea>
+        <button class="primary" type="submit">제출</button>
+    </form>
+</main>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' - 프리랜서 협업 플랫폼'">제목</title>
+    <link rel="stylesheet" th:href="@{/app.css}">
+</head>
+<body>
+<header th:fragment="header">
+    <span class="brand">프리랜서 협업 플랫폼</span>
+    <a th:href="@{/}">모집 중 프로젝트</a>
+    <a th:href="@{/me}">내 프로젝트·제안</a>
+    <a th:href="@{/projects/new}">프로젝트 등록</a>
+    <span class="who" th:if="${session.loginSession != null}">
+        <span th:text="${session.loginSession.name()} + '님'">이름</span>
+        <form th:action="@{/logout}" method="post"><button type="submit" style="margin:0">로그아웃</button></form>
+    </span>
+</header>
+<div th:fragment="messages">
+    <div class="msg ok" th:if="${ok}" th:text="${ok}"></div>
+    <div class="msg err" th:if="${error}" th:text="${error}"></div>
+    <div class="msg note" th:each="n : ${notes}" th:text="${n}"></div>
+</div>
+<nav class="tabs" th:fragment="tabs(p)">
+    <a th:href="@{/projects/{id}(id=${p.id()})}">상세</a>
+    <a th:if="${p.owner()}" th:href="@{/projects/{id}/proposals(id=${p.id()})}">제안 목록</a>
+    <a th:if="${p.owner() or p.assigned()}" th:href="@{/projects/{id}/agreement(id=${p.id()})}">작업 조건 합의</a>
+    <a th:if="${p.assigned()}" th:href="@{/projects/{id}/deliverables/new(id=${p.id()})}">결과물 제출</a>
+    <a th:if="${p.owner() or p.assigned()}" th:href="@{/projects/{id}/review(id=${p.id()})}">결과물·검토</a>
+    <a th:if="${p.owner() or p.assigned()}" th:href="@{/projects/{id}/history(id=${p.id()})}">활동 이력</a>
+</nav>
+</body>
+</html>

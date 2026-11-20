@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments :: head(${p.title()})}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main>
+    <h1 th:text="${p.title()}">제목</h1>
+    <nav th:replace="~{fragments :: tabs(${p})}"></nav>
+    <div th:replace="~{fragments :: messages}"></div>
+    <table>
+        <tr><th>상태</th><td><span class="state" th:text="${p.stateLabel()}"></span></td></tr>
+        <tr><th>의뢰자</th><td th:text="${p.clientName()}"></td></tr>
+        <tr><th>선정 프리랜서</th><td th:text="${p.assignedName() ?: '-'}"></td></tr>
+        <tr><th>분야</th><td th:text="${p.field()}"></td></tr>
+        <tr><th>작업 내용</th><td th:text="${p.description()}"></td></tr>
+        <tr><th>기대 결과물</th><td th:text="${p.expectedOutput()}"></td></tr>
+        <tr><th>예산</th><td th:text="${p.budget()}"></td></tr>
+        <tr><th>희망 마감일</th><td th:text="${p.dueDate()}"></td></tr>
+    </table>
+
+    <div class="box" th:if="${p.owner()}">
+        이 프로젝트의 의뢰자입니다. 접수된 제안 <b th:text="${p.proposalCount()}">0</b>건.
+        <a th:if="${p.state().name() == 'RECRUITING'}" th:href="@{/projects/{id}/proposals(id=${p.id()})}">제안 보고 선정하기</a>
+    </div>
+
+    <form class="box" th:if="${p.canPropose()}" th:action="@{/projects/{id}/proposals(id=${p.id()})}" method="post">
+        <b>제안하기</b> <span class="muted">제출한 제안은 고치거나 철회할 수 없습니다.</span>
+        <div class="row">
+            <div><label>제안 금액(원)</label><input type="number" name="amount" min="1" required></div>
+            <div><label>수행 기간(일)</label><input type="number" name="durationDays" min="1" required></div>
+        </div>
+        <label>제안 내용</label><textarea name="content" required></textarea>
+        <button class="primary" type="submit">제안 제출</button>
+    </form>
+</main>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments :: head('활동 이력')}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main>
+    <h1 th:text="${p.title()} + ' · 활동 이력'">이력</h1>
+    <nav th:replace="~{fragments :: tabs(${p})}"></nav>
+    <table>
+        <tr><th>시각</th><th>유형</th><th>내용</th><th>상태 변화</th><th>행위자</th></tr>
+        <tr th:each="h : ${rows}">
+            <td th:text="${#temporals.format(h.occurredAt(), 'MM-dd HH:mm:ss')}"></td>
+            <td th:text="${h.typeLabel()}"></td>
+            <td th:text="${h.content()}"></td>
+            <td th:text="${h.fromState() == h.toState()} ? '' : (${h.fromState()} + ' → ' + ${h.toState()})"></td>
+            <td th:text="${h.actorName()}"></td>
+        </tr>
+    </table>
+</main>
+</body>
+</html>

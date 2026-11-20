@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments :: head('작업 조건 합의')}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main th:with="p=${page.project()}">
+    <h1 th:text="${p.title()} + ' · 작업 조건 합의'">합의</h1>
+    <nav th:replace="~{fragments :: tabs(${p})}"></nav>
+    <div th:replace="~{fragments :: messages}"></div>
+    <p>프로젝트 상태 <span class="state" th:text="${p.stateLabel()}"></span></p>
+
+    <div th:if="${!page.exists()}" class="box muted">진행 중인 합의가 없습니다.</div>
+
+    <th:block th:if="${page.exists()}">
+        <h2>현재 합의안 <span class="muted" th:text="'· ' + ${page.stateLabel()} + ' · 개정 ' + ${page.revision()}"></span></h2>
+        <table>
+            <tr><th>상대</th><td th:text="'의뢰자 ' + ${p.clientName()} + ' / 선정 프리랜서 ' + ${page.freelancerName()}"></td></tr>
+            <tr><th>작업 범위</th><td th:text="${page.scope()}"></td></tr>
+            <tr><th>일정</th><td th:text="${page.schedule()}"></td></tr>
+            <tr><th>산출물 형식</th><td th:text="${page.format()}"></td></tr>
+            <tr><th>확인</th><td>
+                의뢰자 <b th:text="${page.clientConfirmed()} ? '확인함' : '미확인'"></b> ·
+                프리랜서 <b th:text="${page.freelancerConfirmed()} ? '확인함' : '미확인'"></b>
+            </td></tr>
+        </table>
+
+        <th:block th:if="${page.negotiating()}">
+            <form class="box" th:action="@{/projects/{id}/agreement/confirm(id=${p.id()})}" method="post">
+                <input type="hidden" name="revision" th:value="${page.revision()}">
+                <span th:if="${page.confirmedByMe()}" class="muted">이 개정안을 확인했습니다. 상대방의 확인을 기다리는 중입니다.</span>
+                <th:block th:unless="${page.confirmedByMe()}">
+                    위 개정 <b th:text="${page.revision()}"></b> 내용 그대로 합의합니다.
+                    <button class="primary" type="submit">이 내용으로 확인</button>
+                    <div class="muted">상대방도 같은 개정을 확인하면 확정되고 작업이 시작됩니다. 그사이 누가 고치면 확인은 무효가 됩니다.</div>
+                </th:block>
+            </form>
+
+            <form class="box" th:action="@{/projects/{id}/agreement(id=${p.id()})}" method="post">
+                <b>합의안 고치기</b> <span class="muted">고치면 개정번호가 오르고 양측 확인이 모두 해제됩니다.</span>
+                <label>작업 범위</label><textarea name="scope" th:text="${page.scope()}" required></textarea>
+                <div class="row">
+                    <div><label>일정</label><input type="date" name="schedule" th:value="${page.schedule()}" required></div>
+                    <div><label>산출물 형식 (확장자를 쉼표로)</label><input type="text" name="deliverableFormat" th:value="${page.format()}" required></div>
+                </div>
+                <button type="submit">수정 저장</button>
+            </form>
+
+            <form class="box" th:action="@{/projects/{id}/agreement/break-off(id=${p.id()})}" method="post"
+                  onsubmit="return confirm('합의를 결렬할까요? 프로젝트가 다시 모집 중이 됩니다.')">
+                <b>합의 결렬 (New)</b> <span class="muted">결렬하면 프로젝트가 다시 '모집 중'이 되고 의뢰자는 남은 제안 중에서 다시 고를 수 있습니다.</span>
+                <label>사유</label><input type="text" name="reason" required>
+                <button class="danger" type="submit">결렬</button>
+            </form>
+        </th:block>
+
+        <h2>합의 버전</h2>
+        <p th:if="${#lists.isEmpty(page.versions())}" class="muted">아직 확정된 버전이 없습니다.</p>
+        <table th:unless="${#lists.isEmpty(page.versions())}">
+            <tr><th>버전</th><th>작업 범위</th><th>일정</th><th>형식</th><th>확정 시각</th></tr>
+            <tr th:each="v : ${page.versions()}">
+                <td th:text="${v.versionNo()}"></td><td th:text="${v.scope()}"></td><td th:text="${v.schedule()}"></td>
+                <td th:text="${v.format()}"></td><td th:text="${#temporals.format(v.confirmedAt(), 'yyyy-MM-dd HH:mm')}"></td>
+            </tr>
+        </table>
+    </th:block>
+
+    <th:block th:unless="${#lists.isEmpty(page.brokenOff())}">
+        <h2>지난 결렬 기록</h2>
+        <ul><li th:each="b : ${page.brokenOff()}" th:text="${b}"></li></ul>
+    </th:block>
+</main>
+</body>
+</html>
